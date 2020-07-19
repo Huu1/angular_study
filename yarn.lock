@@ -1388,6 +1388,11 @@ alphanum-sort@^1.0.0:
   resolved "https://registry.yarnpkg.com/alphanum-sort/-/alphanum-sort-1.0.2.tgz#97a1119649b211ad33691d9f9f486a8ec9fbe0a3"
   integrity sha1-l6ERlkmyEa0zaR2fn0hqjsn74KM=
 
+angular-in-memory-web-api@0.5:
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/angular-in-memory-web-api/-/angular-in-memory-web-api-0.5.4.tgz#85af913e0403ead9755bdb2e0835a41a51b658b0"
+  integrity sha512-Im5ZMXAaXE8rRwUEWSGNs5jDyrHC4vXRCxY2ZFqIZL5wBVeeZNVla3fIvpuVvNxw4JKyEUMOlOpMZE5QaPdDEg==
+
 ansi-colors@4.1.1:
   version "4.1.1"
   resolved "https://registry.yarnpkg.com/ansi-colors/-/ansi-colors-4.1.1.tgz#cbb9ae256bf750af1eab344f229aa27fe94ba348"
