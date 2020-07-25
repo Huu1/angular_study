@@ -5,6 +5,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { MyHerosModule } from './my-heros/my-heros.module';
 import { HomeModule } from './home/home.module';
+import { FoundationModule } from './foundation/foundation.module';
+import { MapModule } from './map/map.module';
 
 @NgModule({
   declarations: [
@@ -16,6 +18,8 @@ import { HomeModule } from './home/home.module';
     MyHerosModule,
     CommonModule,
     HomeModule,
+    FoundationModule,
+    MapModule
   ],
   providers: [],
   bootstrap: [AppComponent]

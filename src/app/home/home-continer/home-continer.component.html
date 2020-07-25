@@ -1,7 +1,7 @@
 <div class="container">
     <ul>
         <li *ngFor='let route of routes'>
-            <a [routerLink]="route.link" routerLinkActive="active">我的英雄</a>
+            <a [routerLink]="route.link" routerLinkActive="active">{{route.title}}</a>
         </li>
     </ul>
 </div>

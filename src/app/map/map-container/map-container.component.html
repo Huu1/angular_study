@@ -1,0 +1,24 @@
+<div class="container">
+    <div class="top"></div>
+    <div class="main">
+        <div class="left"></div>
+        <div class="center">
+            <div class="mapTop">
+                <div class="tLeft">
+                    <button (click)="switch(1)">a</button>
+                    <button (click)="switch(2)">b</button>
+                    <button (click)="switch(3)">c</button>
+                    <button (click)="switch(9)">z</button>
+                </div>
+                <div class="tRight">
+                    <nz-checkbox-group [(ngModel)]="checkOptionsOne" (ngModelChange)="log(checkOptionsOne)">
+                    </nz-checkbox-group>
+                    <input type="checkbox" (click)="checkCity(1)" />浙江
+                    <input type="checkbox" (click)="checkCity(2)" />北京
+                </div>
+            </div>
+            <app-map-insantance></app-map-insantance>
+        </div>
+        <div class="right"></div>
+    </div>
+</div>

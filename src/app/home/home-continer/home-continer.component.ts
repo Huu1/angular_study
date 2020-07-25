@@ -18,6 +18,14 @@ export class HomeContinerComponent implements OnInit {
     {
       link:'/heroes',
       title:'我的英雄'
+    },
+    {
+      link:'/DirectiveTest',
+      title:'属性型指令测试'
+    },
+    {
+      link:'/mapTest',
+      title:'地图测试'
     }
   ]
   ngOnInit(): void {
