@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import mapboxgl from 'mapbox-gl';
 import { MapService } from '../map.service';
+import { Expression } from '@angular/compiler';
 @Component({
   selector: 'app-map-insantance',
   templateUrl: './map-insantance.component.html',
@@ -28,7 +29,7 @@ export class MapInsantanceComponent implements OnInit {
       "properties": {
         "description": "<strong>Seersucker Bike Ride and Social</strong><p>Feeling dandy? Get fancy, grab your bike, and take part in this year's Seersucker Social bike ride from Dandies and Quaintrelles. After the ride enjoy a lawn party at Hillwood with jazz, cocktails, paper hat-making, and more. 11:00-7:00 p.m.</p>",
         "icon": "bicycle",
-        "value": 3
+        "value": 4
       },
       "geometry": {
         "type": "Point",
@@ -53,7 +54,8 @@ export class MapInsantanceComponent implements OnInit {
       "type": "Feature",
       "properties": {
         "description": "<strong>Capital Pride Parade</strong><p>The annual Capital Pride Parade makes its way through Dupont this Saturday. 4:30 p.m. Free.</p>",
-        "icon": "star"
+        "icon": "theatre",
+        "value": 2
       },
       "geometry": {
         "type": "Point",
@@ -63,7 +65,8 @@ export class MapInsantanceComponent implements OnInit {
       "type": "Feature",
       "properties": {
         "description": "<strong>A Little Night Music</strong><p>The Arlington Players' production of Stephen Sondheim's <em>A Little Night Music</em> comes to the Kogod Cradle at The Mead Center for American Theater (1101 6th Street SW) this weekend and next. 8:00 p.m.</p>",
-        "icon": "music"
+        "icon": "music",
+        "value": 3
       },
       "geometry": {
         "type": "Point",
@@ -74,7 +77,8 @@ export class MapInsantanceComponent implements OnInit {
       "type": "Feature",
       "properties": {
         "description": "<strong>Seersucker Bike Ride and Social</strong><p>Feeling dandy? Get fancy, grab your bike, and take part in this year's Seersucker Social bike ride from Dandies and Quaintrelles. After the ride enjoy a lawn party at Hillwood with jazz, cocktails, paper hat-making, and more. 11:00-7:00 p.m.</p>",
-        "icon": "bicycle"
+        "icon": "bicycle",
+        "value": 4
       },
       "geometry": {
         "type": "Point",
@@ -82,8 +86,16 @@ export class MapInsantanceComponent implements OnInit {
       }
     }]
   }
-
-
+  // 过滤条件
+  public fillColor(expression) {
+    return [
+      'match',
+      ['get', expression],
+      1, 'blue',
+      2, 'skyblue',
+      '#000' // 默认值
+    ];
+  }
   ngOnInit(): void {
     // this.mapService.currentIndex=1
     mapboxgl.accessToken = 'pk.eyJ1Ijoic2Vla2VyeHUiLCJhIjoiY2pyMWdzMmdwMG9pYzN5b3hoZnRyZTZieCJ9.rwJxZqZEjpCWiCj9-ICNhA';
@@ -94,14 +106,18 @@ export class MapInsantanceComponent implements OnInit {
       zoom: 2
     });
     this.map.on('load', () => {
+      // 地图加载成功后 获取一个默认城市数据
       this.getData(1)
       this.getStationData(1)
     });
+    // 地图图层切换
     this.mapService.index$.subscribe(e => {
+      // e 城市代码
       if (!this.map.isStyleLoaded()) {
         alert('加载中')
         return
       }
+      // 获取选中城市的所有source 
       let arr = []
       arr = this.map.getStyle().layers.filter(item => {
         if (item.source) {
@@ -110,35 +126,25 @@ export class MapInsantanceComponent implements OnInit {
           }
         }
       })
+      // 隐藏/显示图层  根据图层id最后一位 
       switch (e) {
         case 1:
-          arr.forEach(item => {
-            let lastCode = item.id.charAt(item.id.length - 1)
-            this.checkIndex(lastCode, e, item.id)
-          })
+          this.checkIndex(arr, e)
           break;
         case 2:
-          arr.forEach(item => {
-            let lastCode = item.id.charAt(item.id.length - 1)
-            this.checkIndex(lastCode, e, item.id)
-          })
+          this.checkIndex(arr, e)
           break;
         case 3:
-          arr.forEach(item => {
-            let lastCode = item.id.charAt(item.id.length - 1)
-            this.checkIndex(lastCode, e, item.id)
-          })
+          this.checkIndex(arr, e)
           break;
         case 9:
-          arr.forEach(item => {
-            let lastCode = item.id.charAt(item.id.length - 1)
-            this.checkIndex(lastCode, e, item.id)
-          })
+          this.checkIndex(arr, e)
         default:
 
           break;
       }
     })
+    // 城市切换
     this.mapService.city$.subscribe(e => {
       if (e == 0) return
       if (e == 1) {
@@ -148,54 +154,66 @@ export class MapInsantanceComponent implements OnInit {
         this.checkCity(e)
       }
     })
+    // 站点下 2、3G工参选择
     this.mapService.check$.subscribe(e => {
+      // 初次进入 退出
       if (e == 0) return
+      // 获取当前选中城市的的站点图层
+      let arr = this.map.getStyle().layers.filter(item => {
+        if (item.source) {
+          return item.source.includes('stations')
+        }
+      })
+      // 根据选中数据 筛选
       if (this.mapService.checkValue && this.mapService.checkValue.length == 0) {
-        this.map.setFilter(`state${1}9`, ["match",
-          [
-            "get",
-            "value"
-          ],
-          [100],
-          true,
-          false])
+        // 筛选条件为空时 ，随便给个100，防止报错  
+        this.checkValue(arr, [100])
       } else {
-        this.map.setFilter(`state${1}9`, ["match",
-          [
-            "get",
-            "value"
-          ],
-          this.mapService.checkValue,
-          true,
-          false])
+        // 设置筛选条件
+        this.checkValue(arr, this.mapService.checkValue)
       }
-
     })
   }
-  checkIndex(lastCode, code, id) {
-    if (lastCode != code) {
-      this.map.setLayoutProperty(id, 'visibility', 'none');
-    } else {
-      this.map.setLayoutProperty(id, 'visibility', 'visible');
-    }
+  checkIndex(arr, code) {
+    arr.forEach(item => {
+      let lastCode = item.id.charAt(item.id.length - 1)
+      if (lastCode != code) {
+        this.map.setLayoutProperty(item.id, 'visibility', 'none');
+      } else {
+        this.map.setLayoutProperty(item.id, 'visibility', 'visible');
+      }
+    })
   }
   checkCity(e) {
+    // 这里站点和其余图层分开处理     currentIndex：9  为站点
     if (this.mapService.currentIndex != 9) {
+      // 当前城市source存在
       if (this.map.getSource(`states_${e}`)) {
+        // 遍历当前城市所有图层
         for (let i = 1; i < 4; i++) {
+          // 全部移除
           this.map.removeLayer(`state${e}${i}`)
         }
+        // 移除当前城市source  
+        // ps：source可以不移除 但是没又找到更好的条件，判断当前城市图层隐藏还是显示
         this.map.removeSource(`states_${e}`)
-      } else {
+
+      } else { //当前城市图层不存在
+        // 数当前城市据是否存在
         if (this[`data${e}`]) {
+          // 直接添加scource 和图层
           this.layerAdd(e)
         } else {
+          // 获取当前城市的数据
           this.getData(e)
         }
       }
+      // 这里是站点的处理
     } else {
+      // 同上 找当前source 并移除所有图层
       if (this.map.getSource(`stations_${e}`)) {
         let arr = this.map.getStyle().layers.filter(item => {
+          // source名称包括stations 为站点的
           if (item.source && item.source.includes(`stations_${e}`)) {
             return item
           }
@@ -212,6 +230,18 @@ export class MapInsantanceComponent implements OnInit {
         }
       }
     }
+  }
+  checkValue(arr, dataList) {
+    arr.forEach(item => {
+      this.map.setFilter(item.id, ["match",
+        [
+          "get",
+          "value"
+        ],
+        dataList,
+        true,
+        false])
+    });
   }
   getData(pro) {
     setTimeout(() => {
@@ -308,146 +338,30 @@ export class MapInsantanceComponent implements OnInit {
           },
           "properties": {
             "STATE_ID": 1,
-            "STATE_NAME": "West Virginia"
-          }
+            "user": 1,
+            "flow": 2,
+            "STATE_NAME": "West Virginia",
+            'title1': "用户数 1500",
+            'title2': "流量 1500",
+            'title3': "收入 200",
+          },
+          "id": 1
         }, {
           "type": "Feature",
           "geometry": {
             "type": "MultiPolygon",
-            "coordinates": [
-              [
-                [
-                  [-82.9862, 24.6106],
-                  [-82.8999, 24.7178],
-                  [-82.7667, 24.6679],
-                  [-82.8491, 24.5768],
-                  [-82.9862, 24.6106]
-                ]
-              ],
-              [
-                [
-                  [-85.0025, 31.0007],
-                  [-84.9368, 30.8185],
-                  [-84.8647, 30.7115],
-                  [-84.0727, 30.6755],
-                  [-83.1314, 30.6236],
-                  [-82.2147, 30.5686],
-                  [-82.2063, 30.4923],
-                  [-82.1703, 30.359],
-                  [-82.0664, 30.3558],
-                  [-82.0065, 30.5619],
-                  [-82.0368, 30.7544],
-                  [-81.9048, 30.8283],
-                  [-81.7183, 30.7447],
-                  [-81.56, 30.7117],
-                  [-81.347, 30.7124],
-                  [-81.3809, 30.6273],
-                  [-81.3309, 30.301],
-                  [-81.2052, 29.8224],
-                  [-81.1198, 29.5967],
-                  [-80.9068, 29.1447],
-                  [-80.6356, 28.7503],
-                  [-80.523, 28.6082],
-                  [-80.4694, 28.4531],
-                  [-80.544, 28.2711],
-                  [-80.4998, 28.0772],
-                  [-80.3281, 27.7503],
-                  [-80.228, 27.463],
-                  [-80.0391, 27.0298],
-                  [-79.9754, 26.8002],
-                  [-79.9806, 26.5954],
-                  [-80.0523, 25.975],
-                  [-80.0561, 25.8377],
-                  [-80.1418, 25.4347],
-                  [-80.1165, 25.3669],
-                  [-80.2179, 25.2952],
-                  [-80.4534, 24.9637],
-                  [-80.6523, 24.8314],
-                  [-80.8522, 24.7489],
-                  [-81.0477, 24.6402],
-                  [-81.1477, 24.6491],
-                  [-81.4651, 24.5528],
-                  [-81.5399, 24.486],
-                  [-81.7118, 24.4297],
-                  [-81.9464, 24.3993],
-                  [-82.0672, 24.5237],
-                  [-82.1751, 24.4996],
-                  [-82.1535, 24.6349],
-                  [-82.0266, 24.6077],
-                  [-81.8695, 24.6645],
-                  [-81.4025, 24.8818],
-                  [-81.2151, 24.8744],
-                  [-81.1324, 24.8058],
-                  [-80.9643, 24.8199],
-                  [-81.0985, 25.0665],
-                  [-81.1844, 25.125],
-                  [-81.234, 25.2345],
-                  [-81.2057, 25.4108],
-                  [-81.3472, 25.6367],
-                  [-81.4451, 25.7376],
-                  [-81.5881, 25.8099],
-                  [-81.7181, 25.793],
-                  [-81.8503, 26.0629],
-                  [-81.9187, 26.352],
-                  [-81.9781, 26.3997],
-                  [-82.1125, 26.3779],
-                  [-82.2365, 26.4773],
-                  [-82.3219, 26.6651],
-                  [-82.3383, 26.8033],
-                  [-82.4998, 27.0439],
-                  [-82.5647, 27.2056],
-                  [-82.8154, 27.536],
-                  [-82.8057, 27.7094],
-                  [-82.9013, 27.8391],
-                  [-82.8781, 28.0428],
-                  [-82.9083, 28.2066],
-                  [-82.8196, 28.2593],
-                  [-82.7462, 28.4493],
-                  [-82.7274, 28.5956],
-                  [-82.8517, 28.9199],
-                  [-82.8513, 29.0174],
-                  [-82.9501, 29.0761],
-                  [-83.1441, 29.0728],
-                  [-83.2387, 29.3086],
-                  [-83.4495, 29.4834],
-                  [-83.4645, 29.6133],
-                  [-83.5971, 29.6917],
-                  [-83.6473, 29.7972],
-                  [-84.0434, 30.0398],
-                  [-84.2513, 29.996],
-                  [-84.2988, 29.8671],
-                  [-84.4469, 29.8587],
-                  [-84.7302, 29.66],
-                  [-85.0554, 29.5359],
-                  [-85.2348, 29.625],
-                  [-85.3844, 29.615],
-                  [-85.4574, 29.7352],
-                  [-85.459, 29.9066],
-                  [-85.5876, 29.9625],
-                  [-85.9472, 30.1914],
-                  [-86.1848, 30.278],
-                  [-86.3975, 30.3254],
-                  [-86.6459, 30.3462],
-                  [-86.8819, 30.3246],
-                  [-87.5183, 30.2295],
-                  [-87.5, 30.329],
-                  [-87.3712, 30.4305],
-                  [-87.4444, 30.5149],
-                  [-87.4064, 30.6744],
-                  [-87.5326, 30.7432],
-                  [-87.6262, 30.8467],
-                  [-87.5988, 30.9975],
-                  [-86.5202, 30.9933],
-                  [-85.546, 30.9964],
-                  [-85.0025, 31.0007]
-                ]
-              ]
-            ]
+            "coordinates": [[[-90.6428, 42.5085], [-90.0737, 42.5083], [-88.7693, 42.4919], [-87.8032, 42.4926], [-87.0199, 42.4935], [-87.2078, 41.761], [-87.5237, 41.7599], [-87.5263, 40.492], [-87.5316, 39.3479], [-87.5857, 39.2004], [-87.6587, 39.136], [-87.5134, 38.956], [-87.4959, 38.7854], [-87.7562, 38.4625], [-87.8335, 38.3196], [-87.985, 38.228], [-88.037, 37.9563], [-88.095, 37.8937], [-88.028, 37.7992], [-88.1572, 37.6333], [-88.082, 37.4728], [-88.2792, 37.4533], [-88.477, 37.3857], [-88.5158, 37.2841], [-88.4252, 37.1538], [-88.5232, 37.0658], [-88.9314, 37.2274], [-89.0299, 37.2111], [-89.1738, 37.0663], [-89.1329, 36.9821], [-89.2921, 36.9922], [-89.3796, 37.0407], [-89.5185, 37.2863], [-89.4209, 37.3939], [-89.5165, 37.5356], [-89.512, 37.6855], [-89.6679, 37.7586], [-89.7961, 37.8595], [-89.8985, 37.8709], [-90.0595, 38.0156], [-90.2426, 38.1121], [-90.3532, 38.2129], [-90.3708, 38.3336], [-90.1794, 38.6267], [-90.213, 38.712], [-90.1133, 38.8493], [-90.2502, 38.9193], [-90.4717, 38.9592], [-90.5776, 38.8684], [-90.663, 38.9263], [-90.727, 39.2512], [-91.0383, 39.4484], [-91.3678, 39.729], [-91.4338, 39.8419], [-91.4194, 39.9277], [-91.495, 40.0369], [-91.5065, 40.2363], [-91.4194, 40.3783], [-91.3757, 40.3919], [-91.3487, 40.6097], [-91.1239, 40.6692], [-91.0901, 40.8246], [-90.9629, 40.925], [-90.9463, 41.0945], [-91.1142, 41.25], [-91.0483, 41.4098], [-90.8576, 41.4528], [-90.6558, 41.4621], [-90.3432, 41.5878], [-90.3156, 41.7344], [-90.188, 41.8032], [-90.1412, 42.0089], [-90.2095, 42.1527], [-90.3911, 42.2255], [-90.4779, 42.3841], [-90.6428, 42.5085]]]
           },
           "properties": {
             "STATE_ID": 2,
-            "STATE_NAME": "Florida"
-          }
+            "STATE_NAME": "Florida",
+            "user": 2,
+            "flow": 1,
+            'title1': "用户数 1500",
+            'title2': "流量 1500",
+            'title3': "收入 200",
+          },
+          "id": 2
         }]
       } : this[`data${pro}`] = {
         "type": "FeatureCollection",
@@ -537,9 +451,12 @@ export class MapInsantanceComponent implements OnInit {
             ]
           },
           "properties": {
-            "STATE_ID": 3,
-            "STATE_NAME": "Illinois"
-          }
+            "STATE_ID": 1,
+            "STATE_NAME": "Illinois",
+            "user": 2,
+            "flow": 1,
+          },
+          "id": 1
         }, {
           "type": "Feature",
           "geometry": {
@@ -635,66 +552,64 @@ export class MapInsantanceComponent implements OnInit {
             ]
           },
           "properties": {
-            "STATE_ID": 4,
-            "STATE_NAME": "Minnesota"
-          }
+            "STATE_ID": 2,
+            "STATE_NAME": "Minnesota",
+            "user": 1,
+            "flow": 1,
+          },
+          "id": 2
         }]
       }
       this.layerAdd(pro)
     }, 2000)
   }
+  /**
+   * 
+   * @param pro 省份
+   * layer的id最后一位 为次图层标识 用于切换图层
+   */
   layerAdd(pro) {
+    // 每个城市 一个source 四个图层 
     this.map.addSource(`states_${pro}`, {
       "type": "geojson",
       "data": this[`data${pro}`]
     });
-    this.map.addLayer({
-      "id": `state${pro}1`,
-      "type": "fill",
-      "source": `states_${pro}`,
-      "layout": {
-        'visibility': this.mapService.currentIndex == 1 ? 'visible' : 'none',
-      },
-      "paint": {
-        "fill-color": "blue",
-        "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false],
-          1,
-          0.5
-        ]
-      },
-    });
-    this.map.addLayer({
-      "id": `state${pro}2`,
-      "type": "fill",
-      "source": `states_${pro}`,
-      "layout": {
-        'visibility': this.mapService.currentIndex == 2 ? 'visible' : 'none',
-      },
-      "paint": {
-        "fill-color": "skyblue",
-        "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false],
-          1,
-          0.5
-        ]
-      },
-    });
-    this.map.addLayer({
-      "id": `state${pro}3`,
-      "type": "fill",
-      "source": `states_${pro}`,
-      "layout": {
-        'visibility': this.mapService.currentIndex == 3 ? 'visible' : 'none',
-      },
-      "paint": {
-        "fill-color": "green",
-        "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false],
-          1,
-          0.5
-        ]
-      },
-    });
+    for (let i = 1; i < 4; i++) {
+      let name = ''
+      switch (i) {
+        case 1:
+          name = 'STATE_ID'
+          break;
+        case 2:
+          name = 'user'
+          break;
+        case 3:
+          name = 'flow'
+          break;
+        default:
+          name = 'STATE_ID'
+          break;
+      }
+      this.map.addLayer({
+        "id": `state${pro}${i}`,
+        "type": "fill",
+        "source": `states_${pro}`,
+        "layout": {
+          //当前的index$
+          'visibility': this.mapService.currentIndex == i ? 'visible' : 'none',
+        },
+        "paint": {
+          "fill-color": this.fillColor(name),
+          "fill-opacity": ["case", ["boolean", ["feature-state", "hover"], false],
+            1,
+            0.5
+          ]
+        },
+      });
+      this.eventAdd(pro,i)
+    }
   }
-
+  // 站点数据格式和其余有区别 分开添加
   getStationData(pro) {
     setTimeout(() => {
       this[`stationData${pro}`] = pro == 1 ? this.sData : this.sData2
@@ -715,6 +630,39 @@ export class MapInsantanceComponent implements OnInit {
         "icon-allow-overlap": true,
         'visibility': this.mapService.currentIndex == 9 ? 'visible' : 'none',
       }
+    });
+  }
+  eventAdd(pro,i) {
+    let hoveredStateId = null
+    this.map.on('click', `state${pro}${i}`, (e) => {
+      let coordinates = e.features[0].geometry.coordinates[0][1].slice();
+      let title = e.features[0].properties.title2;
+
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
+      new mapboxgl.Popup({
+        closeButton: false,
+      })
+        .setLngLat(coordinates)
+        .setHTML(`<div class='title'>${title}</div>      
+          `)
+        .addTo(this.map);
+    });
+    this.map.on("mousemove", `state${pro}${i}`, (e) => {
+      if (e.features.length > 0) {
+        if (hoveredStateId) {
+          this.map.setFeatureState({ source: `states_${pro}`, id: hoveredStateId }, { hover: false });
+        }
+        hoveredStateId = e.features[0].id;
+        this.map.setFeatureState({ source: `states_${pro}`, id: hoveredStateId }, { hover: true });
+      }
+    });
+    this.map.on("mouseleave", `state${pro}${i}`, () => {
+      if (hoveredStateId) {
+        this.map.setFeatureState({ source: `states_${pro}`, id: hoveredStateId }, { hover: false });
+      }
+      hoveredStateId = null;
     });
   }
 }
