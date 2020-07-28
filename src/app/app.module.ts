@@ -7,6 +7,7 @@ import { MyHerosModule } from './my-heros/my-heros.module';
 import { HomeModule } from './home/home.module';
 import { FoundationModule } from './foundation/foundation.module';
 import { MapModule } from './map/map.module';
+import { TestModule } from './test/test.module';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { MapModule } from './map/map.module';
     CommonModule,
     HomeModule,
     FoundationModule,
-    MapModule
+    MapModule,
+    TestModule
   ],
   providers: [],
   bootstrap: [AppComponent]

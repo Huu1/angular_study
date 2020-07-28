@@ -26,7 +26,15 @@ export class HomeContinerComponent implements OnInit {
     {
       link:'/mapTest',
       title:'地图测试'
-    }
+    },
+    {
+      link:'/formTest',
+      title:'表单测试'
+    },
+    {
+      link:'/tableTest',
+      title:'表格测试'
+    },
   ]
   ngOnInit(): void {
   }

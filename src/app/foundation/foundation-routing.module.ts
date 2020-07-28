@@ -1,11 +1,16 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { DirectiveComponent } from './directive/directive.component';
+import { FormComponent } from './form/form.component';
 
 const routes: Routes = [
   {
     path:'DirectiveTest',
     component:DirectiveComponent
+  },
+  {
+    path:'formTest',
+    component:FormComponent
   }
 ];
 

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+        let newCourseList = [{
+            "id": 511021,
+            "title": "React for Beginners",
+            "coverPng": "https://res.cloudinary.com/dohtkyi84/image/upload/v1481226146/react-cover.png",
+            "rating": 5
+        }, {
+            "id": 511022,
+            "title": "Vue2 for Beginners",
+            "coverPng": "https://res.cloudinary.com/dohtkyi84/image/upload/v1481226146/react-cover.png",
+            "rating": 5
+        }, {
+            "id": 511023,
+            "title": "Angular2 for Beginners",
+            "coverPng": "https://res.cloudinary.com/dohtkyi84/image/upload/v1481226146/react-cover.png",
+            "rating": 5
+        }, {
+            "id": 511024,
+            "title": "Webpack for Beginners",
+            "coverPng": "https://res.cloudinary.com/dohtkyi84/image/upload/v1481226146/react-cover.png",
+            "rating": 4
+        }]
+
+        Array.prototype._map = function(callback) {
+            let res = []
+            this.forEach(item => {
+                res.push(callback(item))
+            })
+            return res
+        }
+        let res = newCourseList._map(item => {
+            return {
+                id: item.id,
+                title: item.title
+            }
+        })
+        console.log(res);
+    </script>
+</body>
+
+</html>
