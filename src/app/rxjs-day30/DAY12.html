@@ -1,0 +1,35 @@
+
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/@reactivex/rxjs@5.0.3/dist/global/Rx.js"></script>
+</head>
+<body>
+    <button id="addButton">Add</button>
+  <button id="minusButton">Minus</button>
+  <h1 id="state"></h1>
+    <script>
+      const addButton = document.getElementById('addButton');
+    const minusButton = document.getElementById('minusButton');
+    const state = document.getElementById('state');
+
+    const addClick = Rx.Observable.fromEvent(addButton, 'click').mapTo(1);
+    const minusClick = Rx.Observable.fromEvent(minusButton, 'click').mapTo(-1);
+
+    const numberState = Rx.Observable.empty()
+        .startWith(0)
+        .merge(addClick, minusClick)
+        .scan((origin, next) => origin + next, 0)
+    
+    numberState
+        .subscribe({
+            next: (value) => { state.innerHTML = value;},
+            error: (err) => { console.log('Error: ' + err); },
+            complete: () => { console.log('complete'); }
+        });
+    </script>
+</body>
+</html>

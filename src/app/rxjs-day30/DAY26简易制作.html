@@ -1,0 +1,127 @@
+
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Document</title>
+      <script src="https://unpkg.com/@reactivex/rxjs@5.0.3/dist/global/Rx.js"></script>
+  </head>
+  <body>
+      <script>
+          class Observer{
+            destination
+            constructor(observerOrNext,error,complete){
+                switch (arguments.length) {
+                    case 0:
+                        // 空
+                        this.destination = this.safeObserver(emptyObserver);
+                        break;
+                    case 1:
+                        if(!observerOrNext){
+                            // 空
+                        this.destination = this.safeObserver(emptyObserver);
+                        }
+                        if(typeof observerOrNext==='object'){
+                            this.destination(observerOrNext)
+                        }
+                        break;
+                    default:
+                        // 一个到三个 Fn
+                        this.destination=safeObeser(observerOrNext,error,complete)
+                        break;
+                }
+            }
+            safeObeser(observerOrNext,error,complete){
+                let next;
+                if(observerOrNext==='function'){
+                    next=observerOrNext
+                }else if(observerOrNext){
+                    next=observerOrNext.next || function(){}
+                    error=observerOrNext.error||function(error){throe (error);}
+                    complete=observerOrNext.complete||function(){}
+                }
+                return {
+                    next,
+                    error,
+                    complete
+                }
+            }
+            next(value) {
+                if (!this.isStopped && this.next) {
+                    // 先判斷是否停止過
+                    try {
+                        this.destination.next(value); // 傳送值
+                    } catch (err) {
+                        this.unsubscribe();
+                        throw err;
+                    }
+                }
+            }
+            error(err) {
+                if (!this.isStopped && this.error) {
+                    // 先判斷是否停止過
+                    try {
+                        this.destination.error(err); // 傳送錯誤
+                    } catch (anotherError) {
+                        this.unsubscribe();
+                        throw anotherError;
+                    }
+                        this.unsubscribe();
+                }
+            }
+            complete() {
+                if (!this.isStopped && this.complete) {
+                    // 先判斷是否停止過
+                    try {
+                        this.destination.complete(); // 發送停止訊息
+                    } catch (err) {
+                        this.unsubscribe();
+                    throw err;
+                    }
+                        this.unsubscribe(); // 發送停止訊息後退訂
+                }
+            }
+            unsubscribe() {
+                this.isStopped = true; // 偷塞一個屬性 isStopped
+            }
+        }
+        function create(subscriber) {
+            var observable = {
+                subscribe: function(observer) {
+                        subscriber(observer)
+                    }       
+                };
+            return observable;
+        }
+
+        var observable = create(function(observer) {
+            observer.next(1);
+            observer.next(2);
+            observer.next(3);
+            observer.complete();
+            observer.next(3);
+        })
+
+        var observer = new Observer({
+            next: function(value) {
+                console.log(value)
+            },
+            complete:function(value){
+                console.log('complete');
+            }
+        }) 
+
+        observable.subscribe(observer)
+
+
+        const emptyObserver = {
+            next: () => {},
+            error: (err) => { throw err; },
+            complete: () => {}
+        }
+
+        
+      </script>
+  </body>
+  </html>

@@ -32,8 +32,8 @@ export class HomeContinerComponent implements OnInit {
       title:'表单测试'
     },
     {
-      link:'/tableTest',
-      title:'表格测试'
+      link:'/observe',
+      title:'Rxjs'
     },
   ]
   ngOnInit(): void {

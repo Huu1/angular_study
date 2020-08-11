@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://unpkg.com/@reactivex/rxjs@5.0.3/dist/global/Rx.js"></script>
+    <style>
+        #drag {
+            position: absolute;
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            background-color: skyblue;
+            cursor: all-scroll;
+        }
+    </style>
+</head>
+<body>
+    <script>
+var main = Rx.Observable.from('hello').zip(Rx.Observable.interval(500), (x, y) => x);
+var some = Rx.Observable.from([0,1,0,0,0,1]).zip(Rx.Observable.interval(300), (x, y) => x);
+
+var example = main.withLatestFrom(some, (x, y) => {
+    return y === 1 ? x.toUpperCase() : x;
+});
+
+example.subscribe({
+    next: (value) => { console.log(value); },
+    error: (err) => { console.log('Error: ' + err); },
+    complete: () => { console.log('complete'); }
+});
+    </script>
+</body>
+</html>
