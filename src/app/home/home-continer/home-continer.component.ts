@@ -35,6 +35,10 @@ export class HomeContinerComponent implements OnInit {
       link:'/observe',
       title:'Rxjs'
     },
+    {
+      link:'/chat',
+      title:'聊天'
+    },
   ]
   ngOnInit(): void {
   }

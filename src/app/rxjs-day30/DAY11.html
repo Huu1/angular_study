@@ -54,7 +54,7 @@ html, body {
     <source src="http://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_stereo.ogg" type="video/ogg">
     Your browser does not support HTML5 video.
   </video>
-  </div>
+</div>
 
   <script>
         const video = document.getElementById('video');
@@ -65,12 +65,10 @@ html, body {
         const mouseUp=Rx.Observable.fromEvent(document, 'mouseup');
         const mouseMove=Rx.Observable.fromEvent(document, 'mousemove');
 
-
         const validValue = (value, max, min) => {
             return Math.min(Math.max(value, min), max)
         }
 
-        
         scroll.map(e => {
           return   anchor.getBoundingClientRect().bottom<0
         }).subscribe(e=>{

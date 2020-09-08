@@ -9,7 +9,7 @@ import { FoundationModule } from './foundation/foundation.module';
 import { MapModule } from './map/map.module';
 import { TestModule } from './test/test.module';
 import { RxjsDay30Module } from './rxjs-day30/rxjs-day30.module';
-
+import { ChatModule } from "./chat/chat.module";
 @NgModule({
   declarations: [
     AppComponent,
@@ -23,7 +23,8 @@ import { RxjsDay30Module } from './rxjs-day30/rxjs-day30.module';
     FoundationModule,
     MapModule,
     TestModule,
-    RxjsDay30Module
+    RxjsDay30Module,
+    ChatModule
   ],
   providers: [],
   bootstrap: [AppComponent]
